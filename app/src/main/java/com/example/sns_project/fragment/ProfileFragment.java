@@ -86,8 +86,7 @@ public class ProfileFragment extends Fragment {
                 if (user.getImageURL().equals("defalut")){
                     image_profile.setImageResource(R.mipmap.ic_launcher);
                 } else {
-                    Glide.with(getContext()).load(user.getImageURL()).centerCrop().into(image_profile);
-
+                    Glide.with(getContext()).load(user.getImageURL()).into(image_profile);
                 }
             }
 

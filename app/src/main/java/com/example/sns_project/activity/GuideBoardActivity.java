@@ -44,32 +44,6 @@ public class GuideBoardActivity extends BasicActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_guide_board);
 
-
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT); //화면 전환 금지 설정
-        firebaseUser = FirebaseAuth.getInstance().getCurrentUser(); //사용자가 로그인 되어있는지 확인
-
-        FirebaseStorage storage = FirebaseStorage.getInstance(); //Firebase Storage 초기화
-        storageRef = storage.getReference();
-
-        if (firebaseUser == null) { //사용자가 로그인 되지 않았다면
-            myStartActivity(LoginActivity.class); //LoginActivity로 이동
-        } else { //사용자가 로그인을 한 상태라면
-            firebaseFirestore = FirebaseFirestore.getInstance(); //firestore 초기화(DataBase)
-            DocumentReference docRef = firebaseFirestore.collection("users").document(firebaseUser.getUid()); //firebase DB users 경로에서 uid가 있는지 확인(회원 정보가 등록되어있는지 확인)
-            docRef.get().addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document != null) {
-                        if (document.exists()) { //문서의 데이터를 가져왔을 경우
-                            showToast(GuideBoardActivity.this, "회원님 반갑습니다!");
-                        } else { //문서의 데이터를 가져오지 못했을 경우
-                            showToast(GuideBoardActivity.this, "회원 정보를 입력해 주세요.");
-                            myStartActivity(MemberInitActivity.class); //회원등록 초기설정 페이지로 이동
-                        }
-                    }
-                }
-            });
-        }
         postList = new ArrayList<>(); //게시물 리스트 초기화
         postAdapter = new PostAdapter(GuideBoardActivity.this, postList); //게시물 Adapter 초기화
         postAdapter.setOnPostListener(onPostListener); //Listener 전달

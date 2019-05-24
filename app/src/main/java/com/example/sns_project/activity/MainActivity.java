@@ -52,11 +52,43 @@ public class MainActivity extends BasicActivity {
     private long backPressedTime; // 두번눌러서 앱종료
     private Toast backToast; // Toast value
 
+    private FirebaseUser firebaseUser;
+    private FirebaseFirestore firebaseFirestore;
+    StorageReference storageRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT); //화면 전환 금지 설정
+        firebaseUser = FirebaseAuth.getInstance().getCurrentUser(); //사용자가 로그인 되어있는지 확인
+
+        FirebaseStorage storage = FirebaseStorage.getInstance(); //Firebase Storage 초기화
+        storageRef = storage.getReference();
+
+        if (firebaseUser == null) { //사용자가 로그인 되지 않았다면
+            myStartActivity(LoginActivity.class); //LoginActivity로 이동
+        } else { //사용자가 로그인을 한 상태라면
+            firebaseFirestore = FirebaseFirestore.getInstance(); //firestore 초기화(DataBase)
+            DocumentReference docRef = firebaseFirestore.collection("users").document(firebaseUser.getUid()); //firebase DB users 경로에서 uid가 있는지 확인(회원 정보가 등록되어있는지 확인)
+            docRef.get().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document != null) {
+                        if (document.exists()) { //문서의 데이터를 가져왔을 경우
+                            showToast(MainActivity.this, "회원님 반갑습니다!");
+                        } else { //문서의 데이터를 가져오지 못했을 경우
+                            showToast(MainActivity.this, "회원 정보를 입력해 주세요.");
+                            myStartActivity(MemberInitActivity.class); //회원등록 초기설정 페이지로 이동
+                        }
+                    }
+                }
+            });
+        }
+
+
+
 
         // 여기부터 bottom navigation
         BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
@@ -110,6 +142,11 @@ public class MainActivity extends BasicActivity {
         }
 
         backPressedTime = System.currentTimeMillis();
+    }
+
+    private void myStartActivity(Class c) { //원하는 Activity로 이동시켜주는 메소드
+        Intent intent = new Intent(this, c);
+        startActivity(intent);
     }
 
 }
