@@ -88,8 +88,6 @@ public class MainActivity extends BasicActivity {
         }
 
 
-
-
         // 여기부터 bottom navigation
         BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
         bottomNav.setOnNavigationItemSelectedListener(navListener);
